@@ -70,6 +70,17 @@ public class GameManager : MonoBehaviour
         scoreText.text = score.ToString(); //takes players score and converts it to text
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Time.timeScale = 0;
+            SetPageState(PageState.Pause);
+
+            
+        }
+    }
+
     // Update is called once per frame
     void SetPageState(PageState state)
     {

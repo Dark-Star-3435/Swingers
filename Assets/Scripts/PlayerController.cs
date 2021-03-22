@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public delegate void PlayerDelegate();
     public static event PlayerDelegate OnPlayerDied;
     public static event PlayerDelegate OnPlayerScored;
+    public Animator animator; // This allows the code to access the animations
 
     public float jumpForce = 250;
     public Vector3 startPos;
@@ -47,6 +48,7 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        animator.SetBool("Grounded", grounded); //used to tell the animator when the player is grounded
         if (Input.GetKeyDown(KeyCode.Space)) // when spacebar is pressed
         {
             if (grounded == true)
@@ -60,7 +62,7 @@ public class PlayerController : MonoBehaviour
         {
              //reduced scale of character by half on the Y axis to feign croutching
              Vector3 theScale = transform.localScale;
-             theScale.y = 0.5f;
+             theScale.y = 5;
              transform.localScale = theScale;
             
         }
@@ -68,11 +70,12 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             Vector3 theScale = transform.localScale;
-            theScale.y = 2;
+            theScale.y = 10;
             transform.localScale = theScale;
         }
 
     }
+    //poggies
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -104,5 +107,6 @@ public class PlayerController : MonoBehaviour
         {
             grounded = false;
         }
+        
     }
 }
