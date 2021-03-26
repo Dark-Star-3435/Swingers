@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -8,83 +6,47 @@ public class PlayerController : MonoBehaviour
     public delegate void PlayerDelegate();
     public static event PlayerDelegate OnPlayerDied;
     public static event PlayerDelegate OnPlayerScored;
+    public Animator animator; // This allows the code to access the animations
 
-    public float jumpForce = 250;
-    public Vector3 startPos;
+    public float jumpForce = 250; // player goes high
     
-    bool grounded;
+    bool grounded; // for is grounded
 
-    Rigidbody2D rigidbody;
+    Rigidbody2D rb;
 
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody2D>();
-    }
-
-    private void OnEnable()
-    {
-        GameManager.OnGameStarted += OnGameStarted;
-        GameManager.OnGameOverConfirmed += OnGameOverConfirmed;
-    }
-    private void OnDisable()
-    {
-        GameManager.OnGameStarted -= OnGameStarted;
-        GameManager.OnGameOverConfirmed -= OnGameOverConfirmed;
-    }
-
-    void OnGameStarted()
-    {
-        rigidbody.velocity = Vector3.zero;
-        rigidbody.simulated = true; //enables physics when game has started
-    }
-
-    void OnGameOverConfirmed()
-    {
-        transform.localPosition = startPos;
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        animator.SetBool("Grounded", grounded); //used to tell the animator when the player is grounded
         if (Input.GetKeyDown(KeyCode.Space)) // when spacebar is pressed
         {
             if (grounded == true)
             {
-                rigidbody.velocity = Vector3.zero;
-                rigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Force); // add upward force
+                rb.velocity = Vector3.zero;
+                rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Force); // add upward force
             }
         }
-
-        if (Input.GetKey(KeyCode.LeftControl)) // when control is pressed
-        {
-             //reduced scale of character by half on the Y axis to feign croutching
-             Vector3 theScale = transform.localScale;
-             theScale.y = 0.5f;
-             transform.localScale = theScale;
-            
-        }
-
-        if (Input.GetKeyUp(KeyCode.LeftControl))
-        {
-            Vector3 theScale = transform.localScale;
-            theScale.y = 2;
-            transform.localScale = theScale;
-        }
-
     }
+
+    //poggies
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
 
-        if (collision.gameObject.tag == "ScoreZone")
+        if (collision.gameObject.tag == "ScoreZone") // if player touches a collider tagged score zone it triggers event Player Scored
         {
             OnPlayerScored();
         }
 
-        if (collision.gameObject.tag == "DeadZone")
+        if (collision.gameObject.tag == "DeadZone") // tells player they suck
         {
-            rigidbody.simulated = false; // stops player movement when they lose
+            rb.simulated = false; // stops player movement when they lose
             OnPlayerDied();
         }
     }
@@ -95,6 +57,7 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Ground")
         {
             grounded = true;
+            Time.timeScale += 0.01f; // time scale speeds up gradualy over time but only when in contact with the ground tag
         }
     }
 
@@ -104,5 +67,6 @@ public class PlayerController : MonoBehaviour
         {
             grounded = false;
         }
+        
     }
 }

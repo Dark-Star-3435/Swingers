@@ -1,15 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public delegate void GameDelegate();
-    public static event GameDelegate OnGameStarted;
-    public static event GameDelegate OnGameOverConfirmed;
-
-    public static GameManager Instance;
+ public static GameManager Instance;
 
     public GameObject pausePage;
     public GameObject gameOverPage;
@@ -17,29 +11,17 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        Time.timeScale = 1;
+        Time.timeScale = 1; // starts time on game start
     }
-    enum PageState
+    enum PageState // page states
     {
         None,
         Pause,
         GameOver
     }
 
-    int score = 0;
-    bool gameOver = false;
-
-    public bool GameOver
-    {
-        get
-        {
-            return gameOver;
-        }
-    }
-    void Awake()
-    {
-        Instance = this;
-    }
+    int score = 0; // score starts at 0
+    bool gameOver = false; // by default game is not over
 
     private void OnEnable()
     {
@@ -53,21 +35,27 @@ public class GameManager : MonoBehaviour
         PlayerController.OnPlayerScored -= OnPlayerScored;
     }
 
-    void OnPlayerDied()
+    void OnPlayerDied() // when player dies even brings up gameover menu
     {
         gameOver = true;
-        int savedScore = PlayerPrefs.GetInt("HighScore"); //saves players highscore
-        if (score > savedScore) //if current score is greater than highest score
-        {
-            PlayerPrefs.SetInt("HighScore", score);
-        }
         SetPageState(PageState.GameOver);
-        Time.timeScale = 0;
+        Time.timeScale = 0; // freezes time when player loses
     }
     void OnPlayerScored()
     {
-        score++;
+        score++; // score increases
         scoreText.text = score.ToString(); //takes players score and converts it to text
+    }
+
+    void Update()
+    {
+        // pauses time when escape is pressed and brings up pause menu
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Time.timeScale = 0;
+            SetPageState(PageState.Pause);
+        }
+
     }
 
     // Update is called once per frame
@@ -94,8 +82,6 @@ public class GameManager : MonoBehaviour
 
     public void ConfirmGameOver()
     {
-        //OnGameOverConfirmed(); //event
-        scoreText.text = "0";
-        SetPageState(PageState.GameOver);
+        SetPageState(PageState.GameOver); // tells player they suck and that they need to git gud
     }
 }
